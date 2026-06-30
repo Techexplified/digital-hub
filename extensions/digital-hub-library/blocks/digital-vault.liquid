@@ -1,0 +1,593 @@
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+  .digital-vault-wrapper {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    color: #111827;
+    margin: 0 auto;
+    box-sizing: border-box;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Logged-out State styling (matching Figma mockup) */
+  .digital-vault-login-card {
+    max-width: 480px;
+    margin: 100px auto;
+    text-align: center;
+    padding: 0 24px;
+  }
+
+  .digital-vault-lock-badge {
+    width: 64px;
+    height: 64px;
+    background-color: #f3f0ff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 28px;
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.3s ease;
+  }
+
+  .digital-vault-lock-badge:hover {
+    transform: scale(1.05);
+    background-color: #ede9fe;
+  }
+
+  .digital-vault-lock-badge svg {
+    width: 24px;
+    height: 24px;
+    stroke: #7c3aed;
+    stroke-width: 2;
+    fill: none;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .digital-vault-login-title {
+    font-size: 32px;
+    font-weight: 800;
+    color: #111827;
+    margin: 0 0 12px;
+    letter-spacing: -0.025em;
+    line-height: 1.2;
+  }
+
+  .digital-vault-login-prompt {
+    font-size: 15px;
+    line-height: 1.6;
+    color: #6b7280;
+    margin: 0 auto 28px;
+    max-width: 360px;
+  }
+
+  .digital-vault-btn-primary {
+    display: inline-block;
+    width: 100%;
+    max-width: 260px;
+    background-color: #7c3aed;
+    color: #ffffff !important;
+    padding: 12px 24px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 15px;
+    box-sizing: border-box;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    border: none;
+    cursor: pointer;
+  }
+
+  .digital-vault-btn-primary:hover {
+    background-color: #6d28d9;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(124, 58, 237, 0.2);
+  }
+
+  .digital-vault-btn-primary:active {
+    background-color: #5b21b6;
+    transform: translateY(0);
+  }
+
+  .digital-vault-footer {
+    margin-top: 18px;
+  }
+
+  .digital-vault-link-secondary {
+    display: inline-block;
+    color: #7c3aed !important;
+    text-decoration: none;
+    font-weight: 550;
+    font-size: 14px;
+    transition: color 0.2s ease;
+  }
+
+  .digital-vault-link-secondary:hover {
+    color: #6d28d9;
+    text-decoration: underline;
+  }
+
+  /* Logged-in State styling (matching premium standard) */
+  .digital-vault-root {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 40px 20px;
+  }
+
+  .digital-vault-header {
+    margin-bottom: 32px;
+  }
+
+  .digital-vault-title-h1 {
+    margin: 0 0 8px;
+    font-size: 30px;
+    font-weight: 800;
+    color: #111827;
+    letter-spacing: -0.025em;
+  }
+
+  .digital-vault-subtitle {
+    margin: 0;
+    color: #4b5563;
+    font-size: 15px;
+    line-height: 1.6;
+  }
+
+  .digital-vault-state-card {
+    text-align: center;
+    padding: 60px 24px;
+    background-color: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    box-shadow: 
+      0 1px 3px rgba(0, 0, 0, 0.01),
+      0 10px 25px -5px rgba(0, 0, 0, 0.02);
+  }
+
+  .digital-vault-state-icon {
+    font-size: 40px;
+    margin-bottom: 16px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 72px;
+    height: 72px;
+    background-color: #f8fafc;
+    border-radius: 50%;
+  }
+
+  .digital-vault-state-title {
+    margin: 0 0 8px;
+    font-size: 18px;
+    font-weight: 600;
+    color: #111827;
+  }
+
+  .digital-vault-state-message {
+    margin: 0;
+    color: #6b7280;
+    font-size: 14px;
+    line-height: 1.5;
+    max-width: 360px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .digital-vault-error-text {
+    color: #ef4444;
+  }
+
+  .digital-vault-loading-spinner {
+    display: inline-block;
+    width: 28px;
+    height: 28px;
+    border: 3px solid #e2e8f0;
+    border-radius: 50%;
+    border-top-color: #7c3aed;
+    animation: digital-vault-spin 0.8s linear infinite;
+    margin-bottom: 16px;
+  }
+
+  @keyframes digital-vault-spin {
+    to { transform: rotate(360deg); }
+  }
+</style>
+
+<div class="digital-vault-wrapper">
+{% if customer %}
+  <div 
+    id="digital-vault-root" 
+    class="digital-vault-root"
+    data-customer-id="{{ customer.id }}"
+    data-customer-email="{{ customer.email }}"
+    data-shop="{{ shop.permanent_domain }}"
+  >
+    <!-- Header -->
+    <div class="digital-vault-header">
+      <h1 class="digital-vault-title-h1">
+        {{ block.settings.header_text }}
+      </h1>
+      <p class="digital-vault-subtitle">
+        {{ block.settings.subheader_text }}
+      </p>
+    </div>
+
+    <!-- Loading State -->
+    <div id="vault-loading" class="digital-vault-state-card">
+      <div class="digital-vault-loading-spinner"></div>
+      <p class="digital-vault-state-message">Loading your digital library...</p>
+    </div>
+
+    <!-- Product List (populated by JS) -->
+    <div id="vault-product-list" style="display: none;">
+      <!-- JS will inject product cards here -->
+    </div>
+
+    <!-- Empty State (hidden by default) -->
+    <div id="vault-empty" class="digital-vault-state-card" style="display: none;">
+      <div class="digital-vault-state-icon">📦</div>
+      <h3 class="digital-vault-state-title">
+        {{ block.settings.empty_title }}
+      </h3>
+      <p class="digital-vault-state-message">
+        {{ block.settings.empty_message }}
+      </p>
+    </div>
+
+    <!-- Error State (hidden by default) -->
+    <div id="vault-error" class="digital-vault-state-card" style="display: none;">
+      <div class="digital-vault-state-icon">⚠️</div>
+      <h3 class="digital-vault-state-title digital-vault-error-text">Error</h3>
+      <p class="digital-vault-state-message">
+        {{ block.settings.error_message }}
+      </p>
+    </div>
+  </div>
+
+  <!-- Placeholder script tag — will be replaced with actual API call later -->
+  <script>
+    //console.log('Digital Vault loaded for customer: {{ customer.id }}');
+    // Future: fetch from App Proxy and populate #vault-product-list
+
+    (function() {
+      const loading = document.getElementById('vault-loading');
+      const list = document.getElementById('vault-product-list');
+      const empty = document.getElementById('vault-empty');
+      const error = document.getElementById('vault-error');
+
+      // Inject CSS
+      const style = document.createElement('style');
+      style.textContent = `
+        .digital-vault-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+          gap: 20px;
+        }
+        .digital-vault-card {
+          background: #ffffff;
+          border: 1px solid #e5e7eb;
+          border-radius: 12px;
+          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+          overflow: hidden;
+          display: flex;
+          flex-direction: column;
+          height: 100%;
+        }
+        .digital-vault-thumbnail {
+          height: 160px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+        .digital-vault-card-body {
+          padding: 16px;
+          display: flex;
+          flex-direction: column;
+          flex-grow: 1;
+        }
+        .digital-vault-card-title {
+          margin: 0 0 4px;
+          font-size: 16px;
+          font-weight: 700;
+          color: #111827;
+          line-height: 1.4;
+        }
+        .digital-vault-card-meta {
+          margin: 0 0 16px;
+          color: #6b7280;
+          font-size: 13px;
+          line-height: 1.5;
+        }
+        .digital-vault-card-button {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 6px;
+          width: 100%;
+          background-color: #7c3aed;
+          color: #ffffff !important;
+          text-decoration: none;
+          font-weight: 600;
+          font-size: 14px;
+          padding: 10px 16px;
+          border-radius: 8px;
+          border: none;
+          cursor: pointer;
+          box-sizing: border-box;
+          transition: background-color 0.2s ease;
+          margin-top: auto;
+        }
+        .digital-vault-card-button:hover {
+          background-color: #6d28d9;
+        }
+      `;
+      document.head.appendChild(style);
+
+      fetch('/apps/digital-hub/downloads')
+        .then(res => {
+          if (!res.ok) throw new Error('Network response was not ok');
+          return res.json();
+        })
+        .then(data => {
+          if (data.downloads && data.downloads.length > 0) {
+            // Update Header
+            const root = document.getElementById('digital-vault-root');
+            const email = root ? root.getAttribute('data-customer-email') : '';
+            const header = document.querySelector('.digital-vault-header');
+            
+            // Calculate total assets count
+            let totalAssets = 0;
+            data.downloads.forEach(download => {
+              if (download.assets) {
+                totalAssets += download.assets.length;
+              }
+            });
+
+            if (header) {
+              const h1 = header.querySelector('.digital-vault-title-h1');
+              const subtitle = header.querySelector('.digital-vault-subtitle');
+
+              const leftWrapper = document.createElement('div');
+              leftWrapper.style.display = 'flex';
+              leftWrapper.style.flexDirection = 'column';
+
+              if (email) {
+                const welcome = document.createElement('div');
+                welcome.className = 'digital-vault-welcome';
+                welcome.style.color = '#6b7280';
+                welcome.style.fontSize = '14px';
+                welcome.style.marginBottom = '4px';
+                //welcome.textContent = `Welcome back, ${email}`;
+                leftWrapper.appendChild(welcome);
+              }
+
+              if (h1) {
+                leftWrapper.appendChild(h1);
+              }
+              if (subtitle) {
+                leftWrapper.appendChild(subtitle);
+              }
+
+              const badge = document.createElement('div');
+              badge.className = 'digital-vault-badge';
+              badge.style.backgroundColor = '#f3f0ff';
+              badge.style.color = '#7c3aed';
+              badge.style.borderRadius = '999px';
+              badge.style.padding = '4px 12px';
+              badge.style.fontSize = '13px';
+              badge.style.fontWeight = '600';
+              badge.style.marginBottom = '8px';
+              badge.textContent = `${totalAssets} Product${totalAssets !== 1 ? 's' : ''}`;
+
+              header.style.display = 'flex';
+              header.style.justifyContent = 'space-between';
+              header.style.alignItems = 'flex-end';
+              header.style.flexWrap = 'wrap';
+              header.style.gap = '16px';
+
+              header.innerHTML = '';
+              header.appendChild(leftWrapper);
+              header.appendChild(badge);
+            }
+
+            let html = '';
+            let assetIndex = 0;
+            const gradients = [
+              'linear-gradient(135deg, #7c3aed, #a78bfa)',
+              'linear-gradient(135deg, #0ea5e9, #38bdf8)',
+              'linear-gradient(135deg, #10b981, #34d399)'
+            ];
+
+            data.downloads.forEach(download => {
+              if (download.assets) {
+                download.assets.forEach(asset => {
+                  const gradient = gradients[assetIndex % gradients.length];
+                  
+                  // Detect file type / extension
+                  const nameLower = (asset.name || '').toLowerCase();
+                  const isPdf = nameLower.endsWith('.pdf') || nameLower.includes('pdf');
+                  const isZip = nameLower.endsWith('.zip') || nameLower.includes('zip');
+                  
+                  let iconHtml = '';
+                  if (asset.type === 'link') {
+                    // Link SVG
+                    iconHtml = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 32px; height: 32px; color: white;"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>`;
+                  } else if (isPdf) {
+                    // Book SVG
+                    iconHtml = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 32px; height: 32px; color: white;"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>`;
+                  } else if (isZip) {
+                    // Archive SVG
+                    iconHtml = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 32px; height: 32px; color: white;"><polyline points="21 8 21 21 3 21 3 8"></polyline><rect x="1" y="3" width="22" height="5"></rect><line x1="10" y1="12" x2="14" y2="12"></line></svg>`;
+                  } else {
+                    // File SVG
+                    iconHtml = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 32px; height: 32px; color: white;"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path><polyline points="13 2 13 9 20 9"></polyline></svg>`;
+                  }
+
+                  // Format metadata
+                  let metaHtml = '';
+                  if (asset.type === 'link') {
+                    metaHtml = asset.instructions || '';
+                  } else {
+                    let ext = '';
+                    if (isPdf) ext = 'PDF';
+                    else if (isZip) ext = 'ZIP';
+                    else {
+                      const match = nameLower.match(/\.([a-zA-Z0-9]+)$/);
+                      if (match) ext = match[1].toUpperCase();
+                      else ext = 'FILE';
+                    }
+
+                    let sizeStr = '';
+                    if (asset.size) {
+                      const sizeInBytes = asset.size;
+                      if (sizeInBytes >= 1048576) {
+                        sizeStr = (sizeInBytes / 1048576).toFixed(1) + ' MB';
+                      } else {
+                        sizeStr = (sizeInBytes / 1024).toFixed(1) + ' KB';
+                      }
+                    }
+
+                    if (ext && sizeStr) {
+                      metaHtml = `${ext} · ${sizeStr}`;
+                    } else if (sizeStr) {
+                      metaHtml = sizeStr;
+                    } else {
+                      metaHtml = ext;
+                    }
+                  }
+
+                  // Button details
+                  let btnHref = '';
+                  let btnTarget = '';
+                  let btnText = '';
+                  let btnIcon = '';
+
+                  if (asset.type === 'link') {
+                    btnHref = asset.url;
+                    btnTarget = 'target="_blank"';
+                    btnText = 'Open Link';
+                    btnIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 16px; height: 16px; margin-right: 6px; display: inline-block; vertical-align: middle;"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>`;
+                  } else {
+                    btnHref = `/apps/digital-hub/file?token=${download.token}&asset=${asset.id}`;
+                    btnText = 'Download';
+                    btnIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 16px; height: 16px; margin-right: 6px; display: inline-block; vertical-align: middle;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>`;
+                  }
+
+                  html += `
+                    <div class="digital-vault-card">
+                      <div class="digital-vault-thumbnail" style="background: ${gradient};">
+                        ${iconHtml}
+                      </div>
+                      <div class="digital-vault-card-body">
+                        <h4 class="digital-vault-card-title">${asset.name}</h4>
+                        <p class="digital-vault-card-meta">${metaHtml}</p>
+                        <a href="${btnHref}" ${btnTarget} class="digital-vault-card-button">
+                          ${btnIcon}
+                          <span>${btnText}</span>
+                        </a>
+                      </div>
+                    </div>
+                  `;
+
+                  assetIndex++;
+                });
+              }
+            });
+
+            list.className = 'digital-vault-grid';
+            list.innerHTML = html;
+            list.style.display = 'grid';
+            loading.style.display = 'none';
+          } else {
+            loading.style.display = 'none';
+            empty.style.display = 'block';
+          }
+        })
+        .catch(err => {
+          console.error('Failed to load vault:', err);
+          loading.style.display = 'none';
+          error.style.display = 'block';
+        });
+    })();
+  </script>
+
+{% else %}
+  <div class="digital-vault-login-card">
+    <div class="digital-vault-lock-badge">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+        <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+      </svg>
+    </div>
+    <h2 class="digital-vault-login-title">
+      {{ block.settings.login_title }}
+    </h2>
+    <p class="digital-vault-login-prompt">
+      {{ block.settings.login_prompt }}
+    </p>
+    <a href="/account/login?return_url={{ request.path | url_encode }}" class="digital-vault-btn-primary">
+      Log in
+    </a>
+    <div class="digital-vault-footer">
+      <a href="/account/register" class="digital-vault-link-secondary">
+        Create an account
+      </a>
+    </div>
+  </div>
+{% endif %}
+</div>
+
+{% schema %}
+{
+  "name": "Digital Vault",
+  "target": "section",
+  "settings": [
+    {
+      "type": "text",
+      "id": "header_text",
+      "label": "Header",
+      "default": "My Digital Vault"
+    },
+    {
+      "type": "text",
+      "id": "subheader_text",
+      "label": "Subheader",
+      "default": "Access all your purchased digital products in one place."
+    },
+    {
+      "type": "text",
+      "id": "empty_title",
+      "label": "Empty State Title",
+      "default": "No downloads yet"
+    },
+    {
+      "type": "text",
+      "id": "empty_message",
+      "label": "Empty State Message",
+      "default": "Your purchased digital products will appear here."
+    },
+    {
+      "type": "text",
+      "id": "error_message",
+      "label": "Error Message",
+      "default": "Something went wrong. Please try again later."
+    },
+    {
+      "type": "text",
+      "id": "login_title",
+      "label": "Login Prompt Title",
+      "default": "Your Digital Vault"
+    },
+    {
+      "type": "text",
+      "id": "login_prompt",
+      "label": "Login Prompt Message",
+      "default": "Please log in to your customer account to access and download your purchased files."
+    }
+  ]
+}
+{% endschema %}

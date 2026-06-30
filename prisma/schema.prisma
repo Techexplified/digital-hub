@@ -1,34 +1,88 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
 
-// Note that some adapters may set a maximum length for the String type by default, please ensure your strings are long
-// enough when changing adapters.
-// See https://www.prisma.io/docs/orm/reference/prisma-schema-reference#string for more information
 datasource db {
-  provider = "sqlite"
-  url      = "file:dev.sqlite"
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 model Session {
-  id            String    @id
-  shop          String
-  state         String
-  isOnline      Boolean   @default(false)
-  scope         String?
-  expires       DateTime?
-  accessToken   String
-  userId        BigInt?
-  firstName     String?
-  lastName      String?
-  email         String?
-  accountOwner  Boolean   @default(false)
-  locale        String?
-  collaborator  Boolean?  @default(false)
-  emailVerified Boolean?  @default(false)
+  id                  String    @id
+  shop                String
+  state               String
+  isOnline            Boolean   @default(false)
+  scope               String?
+  expires             DateTime?
+  accessToken         String
+  userId              BigInt?
+  firstName           String?
+  lastName            String?
+  email               String?
+  accountOwner        Boolean   @default(false)
+  locale              String?
+  collaborator        Boolean?  @default(false)
+  emailVerified       Boolean?  @default(false)
   refreshToken        String?
   refreshTokenExpires DateTime?
+}
+
+model AssetGroup {
+  id          Int       @id @default(autoincrement())
+  shop        String?
+  accessLimit Int?      @map("access_limit")
+   productId   String?   @map("product_id")
+  createdAt   DateTime? @default(now()) @map("created_at") @db.Timestamp(6)
+  assets      Asset[]
+
+  downloadTokens DownloadToken[]
+
+  @@map("asset_groups")
+}
+
+model Asset {
+  id           Int         @id @default(autoincrement())
+  groupId      Int?        @map("group_id")
+  type         String?
+  name         String?
+  size         Int?
+  fileData     Bytes?      @map("file_data")
+  url          String?
+  linkName     String?     @map("link_name")
+  instructions String?
+  group        AssetGroup? @relation(fields: [groupId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@map("assets")
+}
+
+model DownloadToken {
+  id            Int        @id @default(autoincrement())
+  customerEmail String?    @map("customer_email")
+  orderId       String?    @map("order_id")
+  groupId       Int?       @map("group_id")
+  token         String?    @unique
+  expiresAt     DateTime?  @map("expires_at")
+  downloadCount Int        @default(0) @map("download_count")
+  createdAt     DateTime?  @default(now()) @map("created_at")
+  group         AssetGroup? @relation(fields: [groupId], references: [id])
+
+  @@map("download_tokens")
+}
+
+model ShopSettings {
+  id                 Int      @id @default(autoincrement())
+  shop               String   @unique
+  portalHeaderText   String   @default("My Digital Vault")
+  loginPromptMessage String   @default("Please log in to your customer account to access and download your purchased files.")
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+}
+
+model Shop {
+  id                   Int      @id @default(autoincrement())
+  shop                 String   @unique
+  onboardingCompleted  Boolean  @default(false) @map("onboarding_completed")
+  createdAt            DateTime @default(now()) @map("created_at")
+
+  @@map("shops")
 }

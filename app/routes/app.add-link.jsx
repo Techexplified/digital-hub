@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router";
+import { useNavigate, useLocation } from "react-router";
 import { useAppBridge } from "@shopify/app-bridge-react";
 import { authenticate } from "../shopify.server";
 import AppHeader from "../components/AppHeader/AppHeader";
@@ -129,6 +129,8 @@ const CanvaIcon = () => (
 export default function AddLink() {
   const shopify = useAppBridge();
   const navigate = useNavigate();
+  const location = useLocation();
+  const existingAssets = location.state?.assets || [];
 
   // State values for form inputs
   const [url, setUrl] = useState("");
@@ -144,7 +146,11 @@ export default function AddLink() {
   };
 
   const handleCancel = () => {
-    navigate("/app");
+    navigate("/app/add-assets", {
+      state: {
+        assets: existingAssets,
+      },
+    });
   };
 
   const handleAddAssetSubmit = (e) => {
@@ -154,8 +160,13 @@ export default function AddLink() {
     } catch (err) {
       console.log("Toast failed - Action processed:", { url, name, instructions });
     }
-    // Navigate back to home route
-    navigate("/app");
+    // Navigate back to add-assets route passing existing assets + new link
+    navigate("/app/add-assets", {
+      state: {
+        assets: existingAssets,
+        asset: { type: "link", url, link_name: name, instructions },
+      },
+    });
   };
 
   return (

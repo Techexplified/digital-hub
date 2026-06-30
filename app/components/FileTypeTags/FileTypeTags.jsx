@@ -1,7 +1,7 @@
 import React from "react";
 import styles from "./FileTypeTags.module.css";
 
-const DEFAULT_TAGS = ["PDF","MP4", "ZIP", "MP3", "EPUB", "+ Links"];
+const DEFAULT_TAGS = ["PDF", "ZIP", "EPUB", "+ Links"];
 
 /**
  * FileTypeTags component.

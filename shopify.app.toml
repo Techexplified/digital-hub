@@ -1,13 +1,13 @@
 # Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
 
-client_id = "d1598d779e3886c5e57ebb4003d2e0a8"
+client_id = "f322dd014f48f47595db27afbb2c497f"
 name = "Digital Hub"
-application_url = "https://example.com"
+application_url = "https://apply-republic-dollar-specifically.trycloudflare.com"
 embedded = true
 
 [access_scopes]
 # Learn more at https://shopify.dev/docs/apps/tools/cli/configuration#access_scopes
-scopes = "write_products,write_metaobjects,write_metaobject_definitions"
+scopes = "write_products,write_metaobjects,write_metaobject_definitions, read_orders,read_customers"
 
 [product.metafields.app.demo_info]
 type = "single_line_text_field"
@@ -34,7 +34,7 @@ name = "Description"
 type = "multi_line_text_field"
 
 [webhooks]
-api_version = "2026-07"
+api_version = "2025-10"
 
   [[webhooks.subscriptions]]
   uri = "/webhooks/app/uninstalled"
@@ -44,8 +44,17 @@ api_version = "2026-07"
   uri = "/webhooks/app/scopes_update"
   topics = [ "app/scopes_update" ]
 
+  #[[webhooks.subscriptions]]
+ #uri = "/webhooks/orders/paid"
+ #topics = [ "orders/paid" ]
+
 [auth]
-redirect_urls = [ "https://example.com/api/auth" ]
+redirect_urls = [ "https://apply-republic-dollar-specifically.trycloudflare.com" ]
+
+[app_proxy]
+url = "https://apply-republic-dollar-specifically.trycloudflare.com"
+subpath = "digital-hub"
+prefix = "apps"
 
 [build]
 automatically_update_urls_on_dev = true

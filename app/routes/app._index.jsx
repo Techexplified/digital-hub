@@ -1,18 +1,25 @@
 import React from "react";
 import { useAppBridge } from "@shopify/app-bridge-react";
 import { boundary } from "@shopify/shopify-app-react-router/server";
-import { useNavigate } from "react-router";
+import { useNavigate, redirect } from "react-router";
 import { authenticate } from "../shopify.server";
+import prisma from "../db.server";
 import AppHeader from "../components/AppHeader/AppHeader";
 import EmptyAssetCard from "../components/EmptyAssetCard/EmptyAssetCard";
 import styles from "../components/app._index.module.css";
 
 export const loader = async ({ request }) => {
-  await authenticate.admin(request);
+  const { session } = await authenticate.admin(request);
+  
+  const shopRecord = await prisma.shop.findUnique({ where: { shop: session.shop } });
+  if (!shopRecord || !shopRecord.onboardingCompleted) {
+    return redirect("/app/onboarding");
+  }
+  
   return null;
 };
 
-export const action = async ({ request }) => {
+/*export const action = async ({ request }) => {
   // Preserve architecture: boilerplate Shopify mutation action
   const { admin } = await authenticate.admin(request);
   const color = ["Red", "Orange", "Yellow", "Green"][
@@ -42,7 +49,7 @@ export const action = async ({ request }) => {
   return {
     product: responseJson.data.productCreate.product,
   };
-};
+};*/
 
 export default function Index() {
   const shopify = useAppBridge();
@@ -57,13 +64,18 @@ export default function Index() {
 
   const handleFileChange = (event) => {
     const files = event.target.files;
-    if (files && files.length > 0) {
-      try {
-        shopify.toast.show(`Selected file: ${files[0].name}`);
-      } catch (e) {
-        console.log("Selected file:", files[0].name);
+  if (files && files.length > 0) {
+    navigate("/app/add-assets", {
+      state: {
+        asset: {
+          type: "file",
+          name: files[0].name,
+          size: files[0].size,
+          fileObject: files[0]
+        }
       }
-    }
+    });
+  }
   };
 
   const handleAddLink = () => {
@@ -89,7 +101,7 @@ export default function Index() {
         ref={fileInputRef}
         onChange={handleFileChange}
         style={{ display: "none" }}
-        accept=".pdf,.mp4,.zip,.mp3,.epub"
+        accept=".pdf,.zip,.epub"
       />
     </div>
   );
