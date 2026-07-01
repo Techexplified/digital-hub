@@ -1,4 +1,4 @@
-import "@shopify/shopify-app-react-router/adapters/node";
+import "@shopify/shopify-app-react-router/adapters/vercel";
 import {
   ApiVersion,
   AppDistribution,
@@ -17,7 +17,7 @@ const shopify = shopifyApp({
   sessionStorage: new PrismaSessionStorage(prisma),
   distribution: AppDistribution.AppStore,
   future: {
-    expiringOfflineAccessTokens: true,
+    expiringOfflineAccessTokens: false,
   },
   ...(process.env.SHOP_CUSTOM_DOMAIN
     ? { customShopDomains: [process.env.SHOP_CUSTOM_DOMAIN] }
