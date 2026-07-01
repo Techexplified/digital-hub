@@ -1,4 +1,4 @@
-import "@shopify/shopify-app-react-router/adapters/vercel";
+//import "@shopify/shopify-app-react-router/adapters/vercel";
 import {
   ApiVersion,
   AppDistribution,
