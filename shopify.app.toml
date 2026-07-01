@@ -2,7 +2,7 @@
 
 client_id = "f322dd014f48f47595db27afbb2c497f"
 name = "Digital Hub"
-application_url = "https://pop-county-mental-mostly.trycloudflare.com"
+application_url = "https://digital-hub-olive.vercel.app/"
 embedded = true
 
 [build]
@@ -29,11 +29,11 @@ scopes = "read_orders,write_metaobject_definitions,write_metaobjects,write_produ
 
 [auth]
 redirect_urls = [
-  "https://pop-county-mental-mostly.trycloudflare.com/auth/callback"
+  "https://digital-hub-olive.vercel.app//auth/callback"
 ]
 
 [app_proxy]
-url = "https://pop-county-mental-mostly.trycloudflare.com"
+url = "https://digital-hub-olive.vercel.app/"
 subpath = "digital-hub"
 prefix = "apps"
 
