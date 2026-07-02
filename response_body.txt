@@ -1,0 +1,109 @@
+<!DOCTYPE html><html lang="en"><head><meta charSet="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><link rel="preconnect" href="https://cdn.shopify.com/"/><link rel="stylesheet" href="https://cdn.shopify.com/static/fonts/inter/v4/styles.css"/></head><body><div>Handling response</div><script>((storageKey2, restoreKey) => {
+    if (!window.history.state || !window.history.state.key) {
+      let key = Math.random().toString(32).slice(2);
+      window.history.replaceState({ key }, "");
+    }
+    try {
+      let positions = JSON.parse(sessionStorage.getItem(storageKey2) || "{}");
+      let storedY = positions[restoreKey || window.history.state.key];
+      if (typeof storedY === "number") {
+        window.scrollTo(0, storedY);
+      }
+    } catch (error) {
+      console.error(error);
+      sessionStorage.removeItem(storageKey2);
+    }
+  })("react-router-scroll-positions", null)</script><link rel="modulepreload" href="/assets/entry.client-LrN5u7Ek.js"/><link rel="modulepreload" href="/assets/jsx-runtime-qoYMmBnL.js"/><link rel="modulepreload" href="/assets/root-QzZjSxoo.js"/><link rel="modulepreload" href="/assets/app-CHcXLvkt.js"/><link rel="modulepreload" href="/assets/index-CK1mDnJj.js"/><link rel="modulepreload" href="/assets/AppProxyLink-De_mZs_W.js"/><link rel="modulepreload" href="/assets/app._index-DGWtcBCm.js"/><link rel="modulepreload" href="/assets/useAppBridge-Bj34gXAL.js"/><script>window.__reactRouterContext = {"basename":"/","future":{"unstable_optimizeDeps":false,"v8_passThroughRequests":false,"v8_trailingSlashAwareDataRequests":false,"unstable_previewServerPrerendering":false,"v8_middleware":false,"v8_splitRouteModules":false,"v8_viteEnvironmentApi":false},"routeDiscovery":{"mode":"lazy","manifestPath":"/__manifest"},"ssr":true,"isSpaMode":false};window.__reactRouterContext.stream = new ReadableStream({start(controller){window.__reactRouterContext.streamController = controller;}}).pipeThrough(new TextEncoderStream());</script><script type="module" async="">;
+import * as route0 from "/assets/root-QzZjSxoo.js";
+import * as route1 from "/assets/app-CHcXLvkt.js";
+import * as route2 from "/assets/app._index-DGWtcBCm.js";
+  window.__reactRouterManifest = {
+  "entry": {
+    "module": "/assets/entry.client-LrN5u7Ek.js",
+    "imports": [
+      "/assets/jsx-runtime-qoYMmBnL.js"
+    ],
+    "css": []
+  },
+  "routes": {
+    "root": {
+      "id": "root",
+      "path": "",
+      "hasAction": false,
+      "hasLoader": false,
+      "hasClientAction": false,
+      "hasClientLoader": false,
+      "hasClientMiddleware": false,
+      "hasDefaultExport": true,
+      "hasErrorBoundary": false,
+      "module": "/assets/root-QzZjSxoo.js",
+      "imports": [
+        "/assets/jsx-runtime-qoYMmBnL.js"
+      ],
+      "css": []
+    },
+    "routes/app": {
+      "id": "routes/app",
+      "parentId": "root",
+      "path": "app",
+      "hasAction": false,
+      "hasLoader": true,
+      "hasClientAction": false,
+      "hasClientLoader": false,
+      "hasClientMiddleware": false,
+      "hasDefaultExport": true,
+      "hasErrorBoundary": true,
+      "module": "/assets/app-CHcXLvkt.js",
+      "imports": [
+        "/assets/jsx-runtime-qoYMmBnL.js",
+        "/assets/index-CK1mDnJj.js",
+        "/assets/AppProxyLink-De_mZs_W.js"
+      ],
+      "css": []
+    },
+    "routes/app._index": {
+      "id": "routes/app._index",
+      "parentId": "routes/app",
+      "index": true,
+      "hasAction": false,
+      "hasLoader": true,
+      "hasClientAction": false,
+      "hasClientLoader": false,
+      "hasClientMiddleware": false,
+      "hasDefaultExport": true,
+      "hasErrorBoundary": false,
+      "module": "/assets/app._index-DGWtcBCm.js",
+      "imports": [
+        "/assets/jsx-runtime-qoYMmBnL.js",
+        "/assets/useAppBridge-Bj34gXAL.js"
+      ],
+      "css": [
+        "/assets/app-Bxabk3BU.css"
+      ]
+    },
+    "routes/_index": {
+      "id": "routes/_index",
+      "parentId": "root",
+      "index": true,
+      "hasAction": false,
+      "hasLoader": true,
+      "hasClientAction": false,
+      "hasClientLoader": false,
+      "hasClientMiddleware": false,
+      "hasDefaultExport": true,
+      "hasErrorBoundary": false,
+      "module": "/assets/route-g5KzIhTv.js",
+      "imports": [
+        "/assets/jsx-runtime-qoYMmBnL.js"
+      ],
+      "css": [
+        "/assets/route-Xpdx9QZl.css"
+      ]
+    }
+  },
+  "url": "/assets/manifest-40c3d130.js",
+  "version": "40c3d130"
+};
+  window.__reactRouterRouteModules = {"root":route0,"routes/app":route1,"routes/app._index":route2};
+
+import("/assets/entry.client-LrN5u7Ek.js");</script></body></html><!--$--><script>window.__reactRouterContext.streamController.enqueue("[{\"_1\":2,\"_3\":-5,\"_4\":5},\"loaderData\",{},\"actionData\",\"errors\",{\"_6\":7},\"routes/app\",[\"ErrorResponse\",8,9,10],\"\",410,\"Gone\"]\n");</script><!--$--><script>window.__reactRouterContext.streamController.close();</script><!--/$--><!--/$-->

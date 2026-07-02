@@ -1,0 +1,4 @@
+
+      <script data-api-key="f322dd014f48f47595db27afbb2c497f" src="https://cdn.shopify.com/shopifycloud/app-bridge.js"></script>
+      
+    

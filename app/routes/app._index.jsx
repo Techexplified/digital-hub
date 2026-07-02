@@ -1,7 +1,7 @@
 import React from "react";
 import { useAppBridge } from "@shopify/app-bridge-react";
 import { boundary } from "@shopify/shopify-app-react-router/server";
-import { useNavigate, redirect } from "react-router";
+import { useNavigate } from "react-router";
 import { authenticate } from "../shopify.server";
 import prisma from "../db.server";
 import AppHeader from "../components/AppHeader/AppHeader";
@@ -9,13 +9,13 @@ import EmptyAssetCard from "../components/EmptyAssetCard/EmptyAssetCard";
 import styles from "../components/app._index.module.css";
 
 export const loader = async ({ request }) => {
-  const { session } = await authenticate.admin(request);
-  
+  const { session, redirect } = await authenticate.admin(request);
+
   const shopRecord = await prisma.shop.findUnique({ where: { shop: session.shop } });
   if (!shopRecord || !shopRecord.onboardingCompleted) {
-    return redirect("/app/onboarding");
+    throw redirect("/app/onboarding");
   }
-  
+
   return null;
 };
 

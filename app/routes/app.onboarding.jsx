@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { useNavigate, useLoaderData, useFetcher, useRouteError, redirect } from "react-router";
+import { useNavigate, useLoaderData, useFetcher, useRouteError, useSearchParams } from "react-router";
 import { useAppBridge } from "@shopify/app-bridge-react";
 import { boundary } from "@shopify/shopify-app-react-router/server";
 import { authenticate } from "../shopify.server";
@@ -7,16 +7,15 @@ import prisma from "../db.server";
 import styles from "../components/app.onboarding.module.css";
 
 export const loader = async ({ request }) => {
-  const { session } = await authenticate.admin(request);
+  const { session, redirect } = await authenticate.admin(request);
   const shop = session.shop;
-  console.log("Shop value:", shop);
 
   const shopRecord = await prisma.shop.findUnique({
     where: { shop },
   });
 
   if (shopRecord?.onboardingCompleted) {
-    return redirect("/app");
+    throw redirect("/app");
   }
 
   return { shop };
@@ -108,6 +107,7 @@ export default function Onboarding() {
   const shopify = useAppBridge();
   const navigate = useNavigate();
   const fetcher = useFetcher();
+  const [searchParams] = useSearchParams();
   const { shop } = useLoaderData();
 
   // const handleOpenThemeEditor = () => {
@@ -143,9 +143,10 @@ export default function Onboarding() {
       } catch (err) {
         console.log("Toast failed - Setup finished successfully.");
       }
-      navigate("/app");
+      const query = searchParams.toString();
+      navigate(query ? `/app?${query}` : "/app");
     }
-  }, [fetcher.data, navigate, shopify]);
+  }, [fetcher.data, navigate, searchParams, shopify]);
 
   const isSubmitting = fetcher.state === "submitting";
 
