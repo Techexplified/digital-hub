@@ -31,6 +31,7 @@ import styles from "../components/app.link-product.module.css";
 // };
 
 export const loader = async ({ request }) => {
+  try {
   const { admin, session } = await authenticate.admin(request);
 
   console.log("Authenticated shop:", session.shop);
@@ -60,6 +61,10 @@ export const loader = async ({ request }) => {
   const products = data?.data?.products?.edges?.map(e => e.node) || [];
 
   return { products };
+    } catch (err) {
+    console.error("LINK PRODUCT LOADER ERROR:", err);
+    throw err;
+  }
 };
 
 // 2. Action - Save product link to Neon database
