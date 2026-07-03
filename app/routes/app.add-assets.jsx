@@ -212,6 +212,7 @@ export default function AddAssets() {
   const navigate = useNavigate();
   const location = useLocation();
   const fetcher = useFetcher();
+  const [searchParams] = useSearchParams(); 
 
   const fileInputRef = useRef(null);
   const processedKeyRef = useRef(null);
