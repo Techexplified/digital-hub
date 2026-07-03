@@ -5,7 +5,7 @@ import { authenticate } from "../shopify.server";
 import { boundary } from "@shopify/shopify-app-react-router/server";
 import styles from "../components/app.add-assets.module.css";
 import prisma from "../db.server";
-import { useNavigate, useLocation, useRouteError, useFetcher } from "react-router";
+import { useNavigate, useLocation, useRouteError, useFetcher, useSearchParams } from "react-router";
 
 
 
@@ -361,14 +361,26 @@ const handleSave = async (e) => {
 //   }
 // }, [fetcher.data]);
 
-useEffect(() => {
+// useEffect(() => {
+//   if (fetcher.data?.success) {
+//     shopify.toast.show("Assets saved successfully!");
+//     navigate(`/app/asset-saved?groupId=${fetcher.data.groupId}`, {
+//       state: { groupId: fetcher.data.groupId },
+//     });
+//   }
+// }, [fetcher.data]);
+
+  useEffect(() => {
   if (fetcher.data?.success) {
     shopify.toast.show("Assets saved successfully!");
-    navigate(`/app/asset-saved?groupId=${fetcher.data.groupId}`, {
-      state: { groupId: fetcher.data.groupId },
-    });
+    const query = searchParams.toString();
+    const groupId = fetcher.data.groupId;
+    navigate(query 
+      ? `/app/asset-saved?groupId=${groupId}&${query}` 
+      : `/app/asset-saved?groupId=${groupId}`
+    );
   }
-}, [fetcher.data]);
+}, [fetcher.data, searchParams]);
 
 
 
