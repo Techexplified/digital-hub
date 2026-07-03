@@ -10,13 +10,16 @@ import { useNavigate, useLocation, useRouteError, useFetcher } from "react-route
 
 
 export const action = async ({ request }) => {
+  try {
   const { admin, session } = await authenticate.admin(request);
   const shop = session.shop;
 
   const formData = await request.formData();
+  console.log("formData entries:", Object.fromEntries(formData));
 
   // Extract the JSON metadata string and parse it
   const assetsJson = formData.get("assets");
+  console.log("assetsJson:", assetsJson);
   const assets = JSON.parse(assetsJson); // array of asset metadata
 
   const accessLimitRaw = formData.get("accessLimit");
@@ -67,6 +70,10 @@ export const action = async ({ request }) => {
   }
 
   return { success: true, groupId: assetGroup.id };
+    } catch (err) {
+    console.error("ACTION ERROR:", err);
+    throw err;
+  }
 };
 
 
