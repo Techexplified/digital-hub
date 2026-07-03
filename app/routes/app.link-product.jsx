@@ -32,48 +32,58 @@ import styles from "../components/app.link-product.module.css";
 // };
 
 export const loader = async ({ request }) => {
-  try {
   const { admin, session } = await authenticate.admin(request);
 
-  console.log("Authenticated shop:", session.shop);
-
-  const response = await admin.graphql(`
-    query {
-      products(first: 50) {
-        edges {
-          node {
-            id
-            title
-            productType
-            status
-            variantsCount {
-              count
+  try {
+    const response = await admin.graphql(
+      `#graphql
+      query LinkProductList {
+        products(first: 50) {
+          edges {
+            node {
+              id
+              title
+              productType
+              status
+              variantsCount {
+                count
+              }
+              featuredImage {
+                url
+              }
             }
-            featuredImage { url }
           }
         }
-      }
+      }`,
+    );
+
+    const data = await response.json();
+
+    if (data?.errors?.length) {
+      console.error("GraphQL errors:", data.errors);
+      return {
+        products: [],
+        error: data.errors[0]?.message || "Failed to load products",
+      };
     }
-  `);
 
-  console.log("GraphQL status:", response.status);
+    const products =
+      data?.data?.products?.edges?.map((e) => ({
+        ...e.node,
+        totalVariants: e.node.variantsCount?.count ?? 0,
+      })) || [];
 
-  const data = await response.json();
-  console.log("GraphQL response:", JSON.stringify(data, null, 2));
+    return { products };
+  } catch (err) {
+    if (err instanceof Response) {
+      const body = await err.text().catch(() => "");
+      console.error("LINK PRODUCT LOADER ERROR:", err.status, body);
+      return {
+        products: [],
+        error: "Missing product read permission. Reinstall the app to grant read_products scope.",
+      };
+    }
 
-  if (data?.errors?.length) {
-    console.error("GraphQL errors:", data.errors);
-    return { products: [], error: data.errors[0]?.message };
-  }
-
-  const products =
-    data?.data?.products?.edges?.map((e) => ({
-      ...e.node,
-      totalVariants: e.node.variantsCount?.count ?? 0,
-    })) || [];
-
-  return { products };
-    } catch (err) {
     console.error("LINK PRODUCT LOADER ERROR:", err);
     throw err;
   }
@@ -205,7 +215,7 @@ export default function LinkProduct() {
   const location = useLocation();
   const navigation = useNavigation();
   const fetcher = useFetcher();
-  const { products } = useLoaderData();
+  const { products, error } = useLoaderData();
 
   //const groupId = location.state?.groupId || "";
   const [searchParams] = useSearchParams();
@@ -346,9 +356,12 @@ export default function LinkProduct() {
             </div>
           ) : hasNoProducts ? (
             <div className={styles.emptyState}>
-              <h3 className={styles.emptyStateTitle}>No products found</h3>
+              <h3 className={styles.emptyStateTitle}>
+                {error ? "Could not load products" : "No products found"}
+              </h3>
               <p className={styles.emptyStateDescription}>
-                Add products in your Shopify admin to link them.
+                {error ||
+                  "Add products in your Shopify admin to link them."}
               </p>
             </div>
           ) : sortedProducts.length === 0 ? (
