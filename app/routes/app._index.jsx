@@ -1,8 +1,9 @@
 import React from "react";
 import { useAppBridge } from "@shopify/app-bridge-react";
 import { boundary } from "@shopify/shopify-app-react-router/server";
-import { useNavigate } from "react-router";
+import { useNavigate, useSearchParams } from "react-router";
 import { authenticate } from "../shopify.server";
+import { buildAppUrl } from "../utils/embedded-navigation";
 import prisma from "../db.server";
 import AppHeader from "../components/AppHeader/AppHeader";
 import EmptyAssetCard from "../components/EmptyAssetCard/EmptyAssetCard";
@@ -54,6 +55,7 @@ export const loader = async ({ request }) => {
 export default function Index() {
   const shopify = useAppBridge();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const fileInputRef = React.useRef(null);
 
   const handleAddFile = () => {
@@ -65,7 +67,7 @@ export default function Index() {
   const handleFileChange = (event) => {
     const files = event.target.files;
   if (files && files.length > 0) {
-    navigate("/app/add-assets", {
+    navigate(buildAppUrl("/app/add-assets", searchParams), {
       state: {
         asset: {
           type: "file",
@@ -79,7 +81,7 @@ export default function Index() {
   };
 
   const handleAddLink = () => {
-    navigate("/app/add-link");
+    navigate(buildAppUrl("/app/add-link", searchParams));
   };
 
   const handleAvatarClick = () => {

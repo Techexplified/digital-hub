@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { useNavigate, useLocation } from "react-router";
+import { useNavigate, useLocation, useSearchParams } from "react-router";
+import { buildAppUrl } from "../utils/embedded-navigation";
 import { useAppBridge } from "@shopify/app-bridge-react";
 import { authenticate } from "../shopify.server";
 import AppHeader from "../components/AppHeader/AppHeader";
@@ -130,6 +131,7 @@ export default function AddLink() {
   const shopify = useAppBridge();
   const navigate = useNavigate();
   const location = useLocation();
+  const [searchParams] = useSearchParams();
   const existingAssets = location.state?.assets || [];
 
   // State values for form inputs
@@ -146,7 +148,7 @@ export default function AddLink() {
   };
 
   const handleCancel = () => {
-    navigate("/app/add-assets", {
+    navigate(buildAppUrl("/app/add-assets", searchParams), {
       state: {
         assets: existingAssets,
       },
@@ -161,7 +163,7 @@ export default function AddLink() {
       console.log("Toast failed - Action processed:", { url, name, instructions });
     }
     // Navigate back to add-assets route passing existing assets + new link
-    navigate("/app/add-assets", {
+    navigate(buildAppUrl("/app/add-assets", searchParams), {
       state: {
         assets: existingAssets,
         asset: { type: "link", url, link_name: name, instructions },

@@ -6,6 +6,7 @@ import { boundary } from "@shopify/shopify-app-react-router/server";
 import styles from "../components/app.add-assets.module.css";
 import prisma from "../db.server";
 import { useNavigate, useLocation, useRouteError, useFetcher, useSearchParams } from "react-router";
+import { buildAppUrl } from "../utils/embedded-navigation";
 
 
 
@@ -252,7 +253,7 @@ export default function AddAssets() {
   };
 
   const handleCancel = () => {
-    navigate("/app");
+    navigate(buildAppUrl("/app", searchParams));
   };
 
   /*const handleSave = (e) => {
@@ -374,14 +375,9 @@ const handleSave = async (e) => {
   useEffect(() => {
   if (fetcher.data?.success) {
     shopify.toast.show("Assets saved successfully!");
-    const query = searchParams.toString();
-    const groupId = fetcher.data.groupId;
-    navigate(query 
-      ? `/app/asset-saved?groupId=${groupId}&${query}` 
-      : `/app/asset-saved?groupId=${groupId}`
-    );
+    navigate(buildAppUrl("/app/asset-saved", searchParams, { groupId: fetcher.data.groupId }));
   }
-}, [fetcher.data, searchParams]);
+}, [fetcher.data, navigate, searchParams, shopify]);
 
 
 
@@ -399,7 +395,7 @@ const handleSave = async (e) => {
   const handleFileChange = (e) => {
     const files = e.target.files;
     if (files && files.length > 0) {
-      navigate("/app/add-assets", {
+      navigate(buildAppUrl("/app/add-assets", searchParams), {
         state: {
           assets: assets,
           asset: {
@@ -414,7 +410,7 @@ const handleSave = async (e) => {
   };
 
   const handleAddLinkClick = () => {
-    navigate("/app/add-link", {
+    navigate(buildAppUrl("/app/add-link", searchParams), {
       state: {
         assets: assets,
       },

@@ -1,4 +1,5 @@
 import { useNavigate, useLocation, useRouteError, useSearchParams } from "react-router";
+import { buildAppUrl } from "../utils/embedded-navigation";
 import { authenticate } from "../shopify.server";
 import { boundary } from "@shopify/shopify-app-react-router/server";
 import styles from "../components/app.asset-saved.module.css";
@@ -56,44 +57,16 @@ export default function AssetSaved() {
   // };
 
   const handleBack = () => {
-  const query = searchParams.toString();
-  navigate(query ? `/app?${query}` : "/app");
-};
-
-
-  // const handleLinkProduct = () => {
-  //   navigate("/app/link-product", {
-  //     state: {
-  //       groupId,
-  //     },
-  //   });
-  // };
-
-//   const handleLinkProduct = () => {
-//   navigate(`/app/link-product?groupId=${groupId}`);
-// };
+    navigate(buildAppUrl("/app", searchParams));
+  };
 
   const handleLinkProduct = () => {
-  const query = searchParams.toString();
-  navigate(query ? `/app/link-product?groupId=${groupId}&${query}` : `/app/link-product?groupId=${groupId}`);
-};
-
-  // const handleCreateProduct = () => {
-  //   navigate("/app/new-product", {
-  //     state: {
-  //       groupId,
-  //     },
-  //   });
-  // };
-
-//   const handleCreateProduct = () => {
-//   navigate(`/app/new-product?groupId=${groupId}`);
-// };
+    navigate(buildAppUrl("/app/link-product", searchParams, { groupId }));
+  };
 
   const handleCreateProduct = () => {
-  const query = searchParams.toString();
-  navigate(query ? `/app/new-product?groupId=${groupId}&${query}` : `/app/new-product?groupId=${groupId}`);
-};
+    navigate(buildAppUrl("/app/new-product", searchParams, { groupId }));
+  };
 
 
   return (

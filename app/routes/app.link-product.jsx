@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation, useRouteError, useLoaderData, useFetcher, useNavigation, useSearchParams } from "react-router";
+import { buildAppUrl } from "../utils/embedded-navigation";
 import { useAppBridge } from "@shopify/app-bridge-react";
 import { authenticate } from "../shopify.server";
 import { boundary } from "@shopify/shopify-app-react-router/server";
@@ -208,13 +209,12 @@ export default function LinkProduct() {
   useEffect(() => {
     if (fetcher.data?.success) {
       shopify.toast.show("Product linked successfully!");
-      navigate("/app/dashboard");
+      navigate(buildAppUrl("/app/dashboard", searchParams));
     }
-  }, [fetcher.data, navigate, shopify]);
+  }, [fetcher.data, navigate, searchParams, shopify]);
 
   const handleDiscard = () => {
-    //navigate("/app/asset-saved", { state: { groupId } });
-    navigate(`/app/asset-saved?groupId=${groupId}`);
+    navigate(buildAppUrl("/app/asset-saved", searchParams, { groupId }));
   };
 
   const handleSave = (e) => {
