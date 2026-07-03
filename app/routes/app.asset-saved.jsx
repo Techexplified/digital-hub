@@ -51,9 +51,15 @@ export default function AssetSaved() {
   const [searchParams] = useSearchParams();
   const groupId = location.state?.groupId || searchParams.get("groupId") || "";
 
+  // const handleBack = () => {
+  //   navigate("/app");
+  // };
+
   const handleBack = () => {
-    navigate("/app");
-  };
+  const query = searchParams.toString();
+  navigate(query ? `/app?${query}` : "/app");
+};
+
 
   // const handleLinkProduct = () => {
   //   navigate("/app/link-product", {
@@ -63,8 +69,13 @@ export default function AssetSaved() {
   //   });
   // };
 
+//   const handleLinkProduct = () => {
+//   navigate(`/app/link-product?groupId=${groupId}`);
+// };
+
   const handleLinkProduct = () => {
-  navigate(`/app/link-product?groupId=${groupId}`);
+  const query = searchParams.toString();
+  navigate(query ? `/app/link-product?groupId=${groupId}&${query}` : `/app/link-product?groupId=${groupId}`);
 };
 
   // const handleCreateProduct = () => {
@@ -75,9 +86,15 @@ export default function AssetSaved() {
   //   });
   // };
 
+//   const handleCreateProduct = () => {
+//   navigate(`/app/new-product?groupId=${groupId}`);
+// };
+
   const handleCreateProduct = () => {
-  navigate(`/app/new-product?groupId=${groupId}`);
+  const query = searchParams.toString();
+  navigate(query ? `/app/new-product?groupId=${groupId}&${query}` : `/app/new-product?groupId=${groupId}`);
 };
+
 
   return (
     <div className={styles.pageContainer}>
