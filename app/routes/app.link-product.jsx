@@ -7,8 +7,34 @@ import prisma from "../db.server";
 import styles from "../components/app.link-product.module.css";
 
 // 1. Authentication Loader - Fetch products from Shopify
+// export const loader = async ({ request }) => {
+//   const { admin } = await authenticate.admin(request);
+//   const response = await admin.graphql(`
+//     query {
+//       products(first: 50) {
+//         edges {
+//           node {
+//             id
+//             title
+//             productType
+//             status
+//             totalVariants
+//             featuredImage { url }
+//           }
+//         }
+//       }
+//     }
+//   `);
+//   const data = await response.json();
+//   const products = data?.data?.products?.edges?.map(e => e.node) || [];
+//   return { products };
+// };
+
 export const loader = async ({ request }) => {
-  const { admin } = await authenticate.admin(request);
+  const { admin, session } = await authenticate.admin(request);
+
+  console.log("Authenticated shop:", session.shop);
+
   const response = await admin.graphql(`
     query {
       products(first: 50) {
@@ -25,8 +51,14 @@ export const loader = async ({ request }) => {
       }
     }
   `);
+
+  console.log("GraphQL status:", response.status);
+
   const data = await response.json();
+  console.log("GraphQL response:", JSON.stringify(data, null, 2));
+
   const products = data?.data?.products?.edges?.map(e => e.node) || [];
+
   return { products };
 };
 
