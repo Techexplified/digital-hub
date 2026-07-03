@@ -22,100 +22,79 @@ export const action = async ({ request }) => {
   const price = formData.get("price") || "0.00";
   const compareAtPrice = formData.get("compareAtPrice") || null;
   const groupId = parseInt(formData.get("groupId"));
-  const requiresShipping = formData.get("requiresShipping") || "false";
   const imageFiles = formData.getAll("images");
 
-  const response = await admin.graphql(`
-  mutation productCreate($product: ProductCreateInput!) {
-    productCreate(product: $product) {
-      product {
-        id
-        title
-        variants(first: 1) {
-          edges {
-            node {
-              id
+  if (!groupId || isNaN(groupId)) {
+    return { success: false, error: "Invalid asset group" };
+  }
+
+  try {
+    const createResponse = await admin.graphql(
+      `#graphql
+      mutation CreateDigitalProduct($product: ProductCreateInput!) {
+        productCreate(product: $product) {
+          product {
+            id
+            title
+            variants(first: 1) {
+              edges {
+                node {
+                  id
+                }
+              }
             }
           }
+          userErrors {
+            field
+            message
+          }
         }
-      }
-      userErrors {
-        field
-        message
-      }
-    }
-  }`,
-    {
-      variables: {
-        product: {
-          title,
-          descriptionHtml: description,
-          status: "ACTIVE",
-          tags: ["digital", "course", "download"],
-        }
-      }
-    });
-
-  const data = await response.json();
-
-  if (data?.errors || data?.data?.productCreate?.userErrors?.length > 0) {
-    console.error("GraphQL Errors:", data?.errors || data?.data?.productCreate?.userErrors);
-    return { success: false, errors: data?.errors || data?.data?.productCreate?.userErrors };
-  }
-
-  const productId = data.data.productCreate.product.id;
-  const defaultVariantId = data.data.productCreate.product.variants.edges[0]?.node.id;
-
-  if (defaultVariantId) {
-    const variantResponse = await admin.graphql(`
-    mutation productVariantsBulkUpdate($productId: ID!, $variants: [ProductVariantsBulkInput!]!) {
-      productVariantsBulkUpdate(productId: $productId, variants: $variants) {
-        productVariants {
-          id
-          price
-        }
-        userErrors {
-          field
-          message
-        }
-      }
-    }`,
+      }`,
       {
         variables: {
-          productId,
-          variants: [{
-            id: defaultVariantId,
-            price,
-            compareAtPrice: compareAtPrice || null,
-            inventoryItem: {
-              requiresShipping: requiresShipping === "true"
-            }
-          }]
-        }
-      });
+          product: {
+            title,
+            descriptionHtml: description,
+            status: "ACTIVE",
+            tags: ["digital", "course", "download"],
+          },
+        },
+      },
+    );
 
-    const variantData = await variantResponse.json();
-    if (variantData?.errors || variantData?.data?.productVariantsBulkUpdate?.userErrors?.length > 0) {
-      console.error("Variant Errors:", variantData?.errors || variantData?.data?.productVariantsBulkUpdate?.userErrors);
+    const createData = await createResponse.json();
+
+    if (createData?.errors?.length) {
+      console.error("productCreate GraphQL errors:", createData.errors);
+      return { success: false, error: createData.errors[0]?.message || "Failed to create product" };
     }
-  }
 
-  const validImageFiles = imageFiles.filter(
-    (f) => f && typeof f === "object" && f.size > 0
-  );
+    if (createData?.data?.productCreate?.userErrors?.length > 0) {
+      console.error("productCreate userErrors:", createData.data.productCreate.userErrors);
+      return { success: false, error: createData.data.productCreate.userErrors[0]?.message };
+    }
 
-  if (validImageFiles.length > 0) {
-    try {
-      const stagedTargetsResponse = await admin.graphql(`
-        mutation stagedUploadsCreate($input: [StagedUploadInput!]!) {
-          stagedUploadsCreate(input: $input) {
-            stagedTargets {
-              url
-              resourceUrl
-              parameters {
-                name
-                value
-              }
+    const productId = createData.data.productCreate.product.id;
+    const defaultVariantId =
+      createData.data.productCreate.product.variants.edges[0]?.node.id;
+
+    if (defaultVariantId) {
+      const variantInput = {
+        id: defaultVariantId,
+        price,
+      };
+
+      if (compareAtPrice) {
+        variantInput.compareAtPrice = compareAtPrice;
+      }
+
+      const variantResponse = await admin.graphql(
+        `#graphql
+        mutation UpdateDigitalProductVariant($productId: ID!, $variants: [ProductVariantsBulkInput!]!) {
+          productVariantsBulkUpdate(productId: $productId, variants: $variants) {
+            productVariants {
+              id
+              price
             }
             userErrors {
               field
@@ -125,111 +104,180 @@ export const action = async ({ request }) => {
         }`,
         {
           variables: {
-            input: validImageFiles.map((file) => ({
-              filename: file.name,
-              mimeType: file.type,
-              resource: "PRODUCT_IMAGE",
-              fileSize: String(file.size),
-              httpMethod: "POST",
-            })),
+            productId,
+            variants: [variantInput],
           },
-        }
+        },
       );
 
-      const stagedData = await stagedTargetsResponse.json();
+      const variantData = await variantResponse.json();
 
-      if (
-        stagedData?.errors ||
-        stagedData?.data?.stagedUploadsCreate?.userErrors?.length > 0
-      ) {
-        console.error("Staged Upload Errors:", stagedData?.errors || stagedData?.data?.stagedUploadsCreate?.userErrors);
-      } else {
-        const stagedTargets = stagedData.data.stagedUploadsCreate.stagedTargets;
+      if (variantData?.errors?.length) {
+        console.error("productVariantsBulkUpdate GraphQL errors:", variantData.errors);
+        return {
+          success: false,
+          error: variantData.errors[0]?.message || "Failed to update product price",
+        };
+      }
 
-        const resourceUrls = await Promise.all(
-          stagedTargets.map(async (target, index) => {
-            const file = validImageFiles[index];
-            const uploadForm = new FormData();
-
-            for (const param of target.parameters) {
-              uploadForm.append(param.name, param.value);
-            }
-            uploadForm.append("file", file);
-
-            const uploadResponse = await fetch(target.url, {
-              method: "POST",
-              body: uploadForm,
-            });
-
-            if (!uploadResponse.ok) {
-              console.error(`Failed to upload image ${file.name}:`, uploadResponse.statusText);
-              return null;
-            }
-
-            return target.resourceUrl;
-          })
+      if (variantData?.data?.productVariantsBulkUpdate?.userErrors?.length > 0) {
+        console.error(
+          "productVariantsBulkUpdate userErrors:",
+          variantData.data.productVariantsBulkUpdate.userErrors,
         );
+        return {
+          success: false,
+          error: variantData.data.productVariantsBulkUpdate.userErrors[0]?.message,
+        };
+      }
+    }
 
-        const validResourceUrls = resourceUrls.filter(Boolean);
+    const validImageFiles = imageFiles.filter(
+      (f) => f && typeof f === "object" && f.size > 0,
+    );
 
-        if (validResourceUrls.length > 0) {
-          const mediaResponse = await admin.graphql(`
-            mutation productCreateMedia($productId: ID!, $media: [CreateMediaInput!]!) {
-              productCreateMedia(productId: $productId, media: $media) {
-                media {
-                  ... on MediaImage {
-                    id
-                    image {
-                      url
-                    }
-                  }
-                }
-                mediaUserErrors {
-                  field
-                  message
+    if (validImageFiles.length > 0) {
+      try {
+        const stagedTargetsResponse = await admin.graphql(
+          `#graphql
+          mutation StageProductImages($input: [StagedUploadInput!]!) {
+            stagedUploadsCreate(input: $input) {
+              stagedTargets {
+                url
+                resourceUrl
+                parameters {
+                  name
+                  value
                 }
               }
-            }`,
-            {
-              variables: {
-                productId,
-                media: validResourceUrls.map((resourceUrl) => ({
-                  originalSource: resourceUrl,
-                  mediaContentType: "IMAGE",
-                })),
-              },
+              userErrors {
+                field
+                message
+              }
             }
+          }`,
+          {
+            variables: {
+              input: validImageFiles.map((file) => ({
+                filename: file.name,
+                mimeType: file.type || "image/jpeg",
+                resource: "PRODUCT_IMAGE",
+                fileSize: String(file.size),
+                httpMethod: "POST",
+              })),
+            },
+          },
+        );
+
+        const stagedData = await stagedTargetsResponse.json();
+
+        if (
+          stagedData?.errors?.length ||
+          stagedData?.data?.stagedUploadsCreate?.userErrors?.length > 0
+        ) {
+          console.error(
+            "stagedUploadsCreate errors:",
+            stagedData?.errors || stagedData?.data?.stagedUploadsCreate?.userErrors,
+          );
+        } else {
+          const stagedTargets = stagedData.data.stagedUploadsCreate.stagedTargets;
+
+          const resourceUrls = await Promise.all(
+            stagedTargets.map(async (target, index) => {
+              const file = validImageFiles[index];
+              const uploadForm = new FormData();
+
+              for (const param of target.parameters) {
+                uploadForm.append(param.name, param.value);
+              }
+              uploadForm.append("file", file);
+
+              const uploadResponse = await fetch(target.url, {
+                method: "POST",
+                body: uploadForm,
+              });
+
+              if (!uploadResponse.ok) {
+                console.error(
+                  `Failed to upload image ${file.name}:`,
+                  uploadResponse.statusText,
+                );
+                return null;
+              }
+
+              return target.resourceUrl;
+            }),
           );
 
-          const mediaData = await mediaResponse.json();
-          if (mediaData?.data?.productCreateMedia?.mediaUserErrors?.length > 0) {
-            console.error("Media Errors:", mediaData.data.productCreateMedia.mediaUserErrors);
+          const validResourceUrls = resourceUrls.filter(Boolean);
+
+          if (validResourceUrls.length > 0) {
+            const mediaResponse = await admin.graphql(
+              `#graphql
+              mutation AttachProductImages($productId: ID!, $media: [CreateMediaInput!]!) {
+                productCreateMedia(productId: $productId, media: $media) {
+                  media {
+                    ... on MediaImage {
+                      id
+                    }
+                  }
+                  mediaUserErrors {
+                    field
+                    message
+                  }
+                }
+              }`,
+              {
+                variables: {
+                  productId,
+                  media: validResourceUrls.map((resourceUrl) => ({
+                    originalSource: resourceUrl,
+                    mediaContentType: "IMAGE",
+                  })),
+                },
+              },
+            );
+
+            const mediaData = await mediaResponse.json();
+            if (mediaData?.data?.productCreateMedia?.mediaUserErrors?.length > 0) {
+              console.error(
+                "productCreateMedia errors:",
+                mediaData.data.productCreateMedia.mediaUserErrors,
+              );
+            }
           }
         }
+      } catch (err) {
+        console.error("Image upload failed:", err);
       }
-    } catch (err) {
-      console.error("Image upload failed:", err);
     }
+
+    const result = await prisma.assetGroup.updateMany({
+      where: { id: groupId, shop },
+      data: { productId },
+    });
+
+    if (result.count === 0) {
+      return { success: false, error: "Asset group not found or access denied" };
+    }
+
+    return { success: true };
+  } catch (err) {
+    if (err instanceof Response) {
+      const body = await err.text().catch(() => "");
+      console.error("NEW PRODUCT ACTION ERROR:", err.status, body);
+      return {
+        success: false,
+        error:
+          err.status === 403
+            ? "Missing Shopify permissions. Reinstall the app to grant product/file write scopes."
+            : `Failed to create product (${err.status})`,
+      };
+    }
+
+    console.error("NEW PRODUCT ACTION ERROR:", err);
+    return { success: false, error: "Unexpected error while creating product" };
   }
-
-  // await prisma.assetGroup.update({
-  //   where: { id: groupId },
-  //   data: { productId }
-  // });
-  if (!groupId || isNaN(groupId)) {
-  return { success: false, error: "Invalid asset group" };
-}
-
-const result = await prisma.assetGroup.updateMany({
-  where: { id: groupId, shop },
-  data: { productId },
-});
-
-if (result.count === 0) {
-  return { success: false, error: "Asset group not found or access denied" };
-}
-
-  return { success: true };
 };
 
 const BackIcon = () => (
@@ -439,7 +487,9 @@ export default function NewProduct() {
       navigateEmbedded("/app/dashboard", searchParams);
     } else if (fetcher.data && !fetcher.data.success) {
       try {
-        shopify.toast.show("Error saving product. Please check console.");
+        shopify.toast.show(
+          fetcher.data.error || "Error saving product. Please check console.",
+        );
       } catch (err) {
         console.log("App Bridge Toast failed.");
       }
