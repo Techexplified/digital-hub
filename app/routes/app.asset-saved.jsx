@@ -1,5 +1,5 @@
-import { useNavigate, useLocation, useRouteError, useSearchParams } from "react-router";
-import { buildAppUrl } from "../utils/embedded-navigation";
+import { useLocation, useRouteError, useSearchParams } from "react-router";
+import { navigateEmbedded } from "../utils/embedded-navigation";
 import { authenticate } from "../shopify.server";
 import { boundary } from "@shopify/shopify-app-react-router/server";
 import styles from "../components/app.asset-saved.module.css";
@@ -45,7 +45,6 @@ const SuccessCheckIcon = () => (
 
 // 3. Page Component
 export default function AssetSaved() {
-  const navigate = useNavigate();
   const location = useLocation();
 
   //const groupId = location.state?.groupId || "";
@@ -57,15 +56,15 @@ export default function AssetSaved() {
   // };
 
   const handleBack = () => {
-    navigate(buildAppUrl("/app", searchParams));
+    navigateEmbedded("/app", searchParams);
   };
 
   const handleLinkProduct = () => {
-    navigate(buildAppUrl("/app/link-product", searchParams, { groupId }));
+    navigateEmbedded("/app/link-product", searchParams, { groupId });
   };
 
   const handleCreateProduct = () => {
-    navigate(buildAppUrl("/app/new-product", searchParams, { groupId }));
+    navigateEmbedded("/app/new-product", searchParams, { groupId });
   };
 
 

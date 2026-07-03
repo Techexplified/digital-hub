@@ -3,7 +3,7 @@ import { useAppBridge } from "@shopify/app-bridge-react";
 import { boundary } from "@shopify/shopify-app-react-router/server";
 import { useNavigate, useSearchParams } from "react-router";
 import { authenticate } from "../shopify.server";
-import { buildAppUrl } from "../utils/embedded-navigation";
+import { buildAppUrl, navigateEmbedded } from "../utils/embedded-navigation";
 import prisma from "../db.server";
 import AppHeader from "../components/AppHeader/AppHeader";
 import EmptyAssetCard from "../components/EmptyAssetCard/EmptyAssetCard";
@@ -73,15 +73,15 @@ export default function Index() {
           type: "file",
           name: files[0].name,
           size: files[0].size,
-          fileObject: files[0]
-        }
-      }
+          fileObject: files[0],
+        },
+      },
     });
   }
   };
 
   const handleAddLink = () => {
-    navigate(buildAppUrl("/app/add-link", searchParams));
+    navigateEmbedded("/app/add-link", searchParams);
   };
 
   const handleAvatarClick = () => {

@@ -6,7 +6,7 @@ import { boundary } from "@shopify/shopify-app-react-router/server";
 import styles from "../components/app.add-assets.module.css";
 import prisma from "../db.server";
 import { useNavigate, useLocation, useRouteError, useFetcher, useSearchParams } from "react-router";
-import { buildAppUrl } from "../utils/embedded-navigation";
+import { buildAppUrl, navigateEmbedded, currentEmbeddedAction } from "../utils/embedded-navigation";
 
 
 
@@ -253,7 +253,7 @@ export default function AddAssets() {
   };
 
   const handleCancel = () => {
-    navigate(buildAppUrl("/app", searchParams));
+    navigateEmbedded("/app", searchParams);
   };
 
   /*const handleSave = (e) => {
@@ -352,7 +352,11 @@ const handleSave = async (e) => {
   });
   formData.append("accessLimit", accessLimit);
 
-  fetcher.submit(formData, { method: "POST", encType: "multipart/form-data" });
+  fetcher.submit(formData, {
+    method: "POST",
+    encType: "multipart/form-data",
+    action: currentEmbeddedAction("/app/add-assets", searchParams),
+  });
 };
 
 // Handle navigation after save
@@ -375,9 +379,9 @@ const handleSave = async (e) => {
   useEffect(() => {
   if (fetcher.data?.success) {
     shopify.toast.show("Assets saved successfully!");
-    navigate(buildAppUrl("/app/asset-saved", searchParams, { groupId: fetcher.data.groupId }));
+    navigateEmbedded("/app/asset-saved", searchParams, { groupId: fetcher.data.groupId });
   }
-}, [fetcher.data, navigate, searchParams, shopify]);
+}, [fetcher.data, searchParams, shopify]);
 
 
 
@@ -411,9 +415,7 @@ const handleSave = async (e) => {
 
   const handleAddLinkClick = () => {
     navigate(buildAppUrl("/app/add-link", searchParams), {
-      state: {
-        assets: assets,
-      },
+      state: { assets },
     });
   };
 

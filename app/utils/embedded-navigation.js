@@ -1,4 +1,4 @@
-const EMBEDDED_PARAMS = ["shop", "host", "embedded"];
+const EMBEDDED_PARAMS = ["shop", "host", "embedded", "id_token"];
 
 /**
  * Build an in-app path that preserves Shopify embedded iframe params.
@@ -19,4 +19,22 @@ export function buildAppUrl(path, searchParams, extraParams = {}) {
 
   const query = params.toString();
   return query ? `${path}?${query}` : path;
+}
+
+/**
+ * Navigate within the embedded app without losing Shopify session context.
+ * Uses a full page load so Shopify auth params are always sent to the server.
+ */
+export function navigateEmbedded(path, searchParams, extraParams = {}) {
+  if (typeof window === "undefined") return;
+
+  const url = buildAppUrl(path, searchParams, extraParams);
+  window.location.assign(url);
+}
+
+/**
+ * Current path + embedded params for fetcher form submissions.
+ */
+export function currentEmbeddedAction(pathname, searchParams) {
+  return buildAppUrl(pathname, searchParams);
 }

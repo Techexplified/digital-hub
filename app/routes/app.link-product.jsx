@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation, useRouteError, useLoaderData, useFetcher, useNavigation, useSearchParams } from "react-router";
-import { buildAppUrl } from "../utils/embedded-navigation";
+import { buildAppUrl, navigateEmbedded, currentEmbeddedAction } from "../utils/embedded-navigation";
 import { useAppBridge } from "@shopify/app-bridge-react";
 import { authenticate } from "../shopify.server";
 import { boundary } from "@shopify/shopify-app-react-router/server";
@@ -46,7 +46,9 @@ export const loader = async ({ request }) => {
             title
             productType
             status
-            totalVariants
+            variantsCount {
+              count
+            }
             featuredImage { url }
           }
         }
@@ -59,7 +61,16 @@ export const loader = async ({ request }) => {
   const data = await response.json();
   console.log("GraphQL response:", JSON.stringify(data, null, 2));
 
-  const products = data?.data?.products?.edges?.map(e => e.node) || [];
+  if (data?.errors?.length) {
+    console.error("GraphQL errors:", data.errors);
+    return { products: [], error: data.errors[0]?.message };
+  }
+
+  const products =
+    data?.data?.products?.edges?.map((e) => ({
+      ...e.node,
+      totalVariants: e.node.variantsCount?.count ?? 0,
+    })) || [];
 
   return { products };
     } catch (err) {
@@ -209,12 +220,12 @@ export default function LinkProduct() {
   useEffect(() => {
     if (fetcher.data?.success) {
       shopify.toast.show("Product linked successfully!");
-      navigate(buildAppUrl("/app/dashboard", searchParams));
+      navigateEmbedded("/app/dashboard", searchParams);
     }
-  }, [fetcher.data, navigate, searchParams, shopify]);
+  }, [fetcher.data, searchParams, shopify]);
 
   const handleDiscard = () => {
-    navigate(buildAppUrl("/app/asset-saved", searchParams, { groupId }));
+    navigateEmbedded("/app/asset-saved", searchParams, { groupId });
   };
 
   const handleSave = (e) => {
@@ -231,7 +242,10 @@ export default function LinkProduct() {
     const formData = new FormData();
     formData.append("groupId", groupId);
     formData.append("productId", selectedProductId);
-    fetcher.submit(formData, { method: "POST" });
+    fetcher.submit(formData, {
+      method: "POST",
+      action: currentEmbeddedAction("/app/link-product", searchParams),
+    });
   };
 
   // 1. Filter products by title

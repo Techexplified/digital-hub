@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate, useLocation, useSearchParams } from "react-router";
-import { buildAppUrl } from "../utils/embedded-navigation";
+import { buildAppUrl, navigateEmbedded } from "../utils/embedded-navigation";
 import { useAppBridge } from "@shopify/app-bridge-react";
 import { authenticate } from "../shopify.server";
 import AppHeader from "../components/AppHeader/AppHeader";
@@ -149,9 +149,7 @@ export default function AddLink() {
 
   const handleCancel = () => {
     navigate(buildAppUrl("/app/add-assets", searchParams), {
-      state: {
-        assets: existingAssets,
-      },
+      state: { assets: existingAssets },
     });
   };
 
