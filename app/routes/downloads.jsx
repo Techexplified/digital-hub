@@ -43,6 +43,9 @@ export const loader = async ({ request }) => {
       where: {
         customerEmail,
         OR: [{ expiresAt: null }, { expiresAt: { gt: now } }],
+        group: {
+      shop: session.shop,
+    },
       },
       include: {
         group: {
