@@ -43,6 +43,8 @@ export const action = async ({ request }) => {
         token,
         expiresAt,
         downloadCount: 0,
+        saleAmount: lineItem.price,
+        currency: order.currency,
       },
     });
 

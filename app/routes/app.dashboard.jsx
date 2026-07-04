@@ -126,17 +126,30 @@ export const loader = async ({ request }) => {
     };
   }
 
+  // for (const group of assetGroups) {
+  //   const pId = group.productId;
+  //   if (pId && productsMap[pId]) {
+  //     productsMap[pId].assetCount += group.assets?.length || 0;
+  //     productsMap[pId].downloads +=
+  //       group.downloadTokens?.reduce(
+  //         (sum, token) => sum + (token.downloadCount || 0),
+  //         0
+  //       ) || 0;
+  //   }
+  // }
+
   for (const group of assetGroups) {
-    const pId = group.productId;
-    if (pId && productsMap[pId]) {
-      productsMap[pId].assetCount += group.assets?.length || 0;
-      productsMap[pId].downloads +=
-        group.downloadTokens?.reduce(
-          (sum, token) => sum + (token.downloadCount || 0),
-          0
-        ) || 0;
-    }
+  const pId = group.productId;
+  if (pId && productsMap[pId]) {
+    productsMap[pId].assetCount += group.assets?.length || 0;
+    productsMap[pId].downloads += group.downloadTokens?.reduce(
+      (sum, token) => sum + (token.downloadCount || 0), 0
+    ) || 0;
+    productsMap[pId].sales += group.downloadTokens?.reduce(
+      (sum, token) => sum + (parseFloat(token.saleAmount) || 0), 0
+    ) || 0;
   }
+}
 
   return {
     stats: {

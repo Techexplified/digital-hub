@@ -66,6 +66,9 @@ model DownloadToken {
   createdAt     DateTime?  @default(now()) @map("created_at")
   group         AssetGroup? @relation(fields: [groupId], references: [id])
 
+  saleAmount  Decimal?
+  currency    String?
+
   @@map("download_tokens")
 }
 
