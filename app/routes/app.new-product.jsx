@@ -40,6 +40,9 @@ export const action = async ({ request }) => {
               edges {
                 node {
                   id
+                  inventoryItem {
+                    id
+                  }
                 }
               }
             }
@@ -77,6 +80,8 @@ export const action = async ({ request }) => {
     const productId = createData.data.productCreate.product.id;
     const defaultVariantId =
       createData.data.productCreate.product.variants.edges[0]?.node.id;
+    const inventoryItemId =
+      createData.data.productCreate.product.variants.edges[0]?.node.inventoryItem?.id;
 
     if (defaultVariantId) {
       const variantInput = {
@@ -129,6 +134,49 @@ export const action = async ({ request }) => {
           success: false,
           error: variantData.data.productVariantsBulkUpdate.userErrors[0]?.message,
         };
+      }
+    }
+
+    if (inventoryItemId) {
+      try {
+        const inventoryResponse = await admin.graphql(
+          `#graphql
+          mutation UpdateInventoryItemShipping($id: ID!, $input: InventoryItemInput!) {
+            inventoryItemUpdate(id: $id, input: $input) {
+              inventoryItem {
+                id
+                requiresShipping
+              }
+              userErrors {
+                field
+                message
+              }
+            }
+          }`,
+          {
+            variables: {
+              id: inventoryItemId,
+              input: {
+                requiresShipping: false,
+              },
+            },
+          },
+        );
+
+        const inventoryData = await inventoryResponse.json();
+
+        if (inventoryData?.errors?.length) {
+          console.error("inventoryItemUpdate GraphQL errors:", inventoryData.errors);
+        }
+
+        if (inventoryData?.data?.inventoryItemUpdate?.userErrors?.length > 0) {
+          console.error(
+            "inventoryItemUpdate userErrors:",
+            inventoryData.data.inventoryItemUpdate.userErrors,
+          );
+        }
+      } catch (err) {
+        console.error("Failed to update inventory item shipping setting:", err);
       }
     }
 
@@ -692,7 +740,7 @@ export default function NewProduct() {
                       </div>
                     </div>
                     <label className={styles.switch}>
-                      <input type="checkbox" checked={requiresShipping} onChange={(e) => setRequiresShipping(e.target.checked)} />
+                      <input type="checkbox" checked={true} disabled />
                       <span className={styles.slider}></span>
                     </label>
                   </div>
@@ -735,7 +783,7 @@ export default function NewProduct() {
                   {status === "ACTIVE" && (
                     <div className={styles.visibilityBanner}>
                       <span className={styles.visibilityIcon}><CheckCircleIcon /></span>
-                      This product is visible in your store.
+                      go to products page to make the product visible in store
                     </div>
                   )}
                 </div>
