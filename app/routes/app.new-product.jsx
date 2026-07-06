@@ -40,9 +40,6 @@ export const action = async ({ request }) => {
               edges {
                 node {
                   id
-                  inventoryItem {
-                    id
-                  }
                 }
               }
             }
@@ -80,8 +77,6 @@ export const action = async ({ request }) => {
     const productId = createData.data.productCreate.product.id;
     const defaultVariantId =
       createData.data.productCreate.product.variants.edges[0]?.node.id;
-    const inventoryItemId =
-      createData.data.productCreate.product.variants.edges[0]?.node.inventoryItem?.id;
 
     if (defaultVariantId) {
       const variantInput = {
@@ -135,48 +130,26 @@ export const action = async ({ request }) => {
           error: variantData.data.productVariantsBulkUpdate.userErrors[0]?.message,
         };
       }
-    }
 
-    if (inventoryItemId) {
+      const variantIdNumeric = defaultVariantId.split("/").pop();
       try {
-        const inventoryResponse = await admin.graphql(
-          `#graphql
-          mutation UpdateInventoryItemShipping($id: ID!, $input: InventoryItemInput!) {
-            inventoryItemUpdate(id: $id, input: $input) {
-              inventoryItem {
-                id
-                requiresShipping
-              }
-              userErrors {
-                field
-                message
-              }
-            }
-          }`,
-          {
-            variables: {
-              id: inventoryItemId,
-              input: {
-                requiresShipping: false,
-              },
+        const restResponse = await admin.rest.put({
+          path: `variants/${variantIdNumeric}.json`,
+          data: {
+            variant: {
+              id: parseInt(variantIdNumeric),
+              requires_shipping: false,
             },
           },
-        );
-
-        const inventoryData = await inventoryResponse.json();
-
-        if (inventoryData?.errors?.length) {
-          console.error("inventoryItemUpdate GraphQL errors:", inventoryData.errors);
-        }
-
-        if (inventoryData?.data?.inventoryItemUpdate?.userErrors?.length > 0) {
-          console.error(
-            "inventoryItemUpdate userErrors:",
-            inventoryData.data.inventoryItemUpdate.userErrors,
-          );
+        });
+        if (!restResponse.ok) {
+          const errorText = await restResponse.text();
+          console.error("Failed to update variant shipping via REST:", restResponse.status, errorText);
+        } else {
+          console.log("Successfully updated variant requires_shipping to false via REST");
         }
       } catch (err) {
-        console.error("Failed to update inventory item shipping setting:", err);
+        console.error("Error during REST variant shipping update:", err);
       }
     }
 

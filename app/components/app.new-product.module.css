@@ -647,6 +647,15 @@
   transform: translateX(20px);
 }
 
+.switch input:disabled + .slider {
+  cursor: not-allowed;
+  background-color: #e2e8f0;
+}
+
+.switch input:checked:disabled + .slider {
+  background-color: #cbd5e1;
+}
+
 /* Variant Card option */
 .variantRow {
   display: flex;
