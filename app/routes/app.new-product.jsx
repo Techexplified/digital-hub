@@ -713,7 +713,7 @@ export default function NewProduct() {
                       </div>
                     </div>
                     <label className={styles.switch}>
-                      <input type="checkbox" checked={true} disabled />
+                      <input type="checkbox" checked={false} disabled />
                       <span className={styles.slider}></span>
                     </label>
                   </div>
