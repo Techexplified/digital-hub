@@ -2,7 +2,7 @@
 
 client_id = "f322dd014f48f47595db27afbb2c497f"
 name = "Digital Hub"
-application_url = "https://digital-hub-olive.vercel.app/"
+application_url = "https://digital-hub-olive.vercel.app"
 embedded = true
 
 [build]
@@ -37,7 +37,7 @@ redirect_urls = [
 ]
 
 [app_proxy]
-url = "https://digital-hub-olive.vercel.app/"
+url = "https://digital-hub-olive.vercel.app"
 subpath = "digital-hub"
 prefix = "apps"
 

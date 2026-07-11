@@ -327,7 +327,11 @@
       `;
       document.head.appendChild(style);
 
-      fetch('/apps/digital-hub/downloads')
+      //fetch('/apps/digital-hub/downloads')
+
+      const vaultRoot = document.getElementById('digital-vault-root');
+      const customerId = vaultRoot ? vaultRoot.getAttribute('data-customer-id') : null;
+      fetch(`/apps/digital-hub/downloads${customerId ? '?logged_in_customer_id=' + customerId : ''}`)
         .then(res => {
           if (!res.ok) throw new Error('Network response was not ok');
           return res.json();
