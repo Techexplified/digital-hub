@@ -399,17 +399,32 @@ const handleSave = async (e) => {
   const handleFileChange = (e) => {
     const files = e.target.files;
     if (files && files.length > 0) {
+
+
+      const file = files[0];
+    
+    // 5MB limit check
+    if (file.size > 5 * 1024 * 1024) {
+      try {
+        shopify.toast.show("File size exceeds 5MB limit. Please choose a smaller file.");
+      } catch (err) {
+        alert("File size exceeds 5MB limit. Please choose a smaller file.");
+      }
+      e.target.value = "";
+      return;
+    }
       navigate(buildAppUrl("/app/add-assets", searchParams), {
         state: {
           assets: assets,
           asset: {
             type: "file",
-            name: files[0].name,
-            size: files[0].size,
-            fileObject: files[0],
+            name: file.name,
+            size: file.size,
+            fileObject: file,
           },
         },
       });
+      e.target.value = "";
     }
   };
 

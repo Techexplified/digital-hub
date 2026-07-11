@@ -67,13 +67,25 @@ export default function Index() {
   const handleFileChange = (event) => {
     const files = event.target.files;
   if (files && files.length > 0) {
+
+    const file = files[0];
+
+    if (file.size > 5 * 1024 * 1024) {
+      try {
+        shopify.toast.show("File size exceeds 5MB limit.");
+      } catch (err) {
+        alert("File size exceeds 5MB limit.");
+      }
+      event.target.value = "";
+      return;
+    }
     navigate(buildAppUrl("/app/add-assets", searchParams), {
       state: {
         asset: {
           type: "file",
-          name: files[0].name,
-          size: files[0].size,
-          fileObject: files[0],
+          name: file.name,
+          size: file.size,
+          fileObject: file,
         },
       },
     });
