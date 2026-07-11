@@ -55,6 +55,8 @@ export const loader = async ({ request }) => {
     });
 
     console.log("Tokens found:", tokens.length);
+    console.log("Session shop:", session?.shop);
+    console.log("Customer email:", customerEmail);
 
     const downloads = tokens
       .filter((t) => !t.group?.accessLimit || t.downloadCount < t.group.accessLimit)
