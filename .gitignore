@@ -19,6 +19,7 @@ database.sqlite
 
 
 /shopify.app.digital-hub.toml
+/Users.lnk
 
 /extensions/*/dist
 

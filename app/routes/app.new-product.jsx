@@ -79,9 +79,21 @@ export const action = async ({ request }) => {
       createData.data.productCreate.product.variants.edges[0]?.node.id;
 
     if (defaultVariantId) {
-      const variantInput = {
+      // const variantInput = {
+      //   id: defaultVariantId,
+      //   price,
+      // };
+
+      // if (compareAtPrice) {
+      //   variantInput.compareAtPrice = compareAtPrice;
+      // }
+
+            const variantInput = {
         id: defaultVariantId,
         price,
+        inventoryItem: {
+          requiresShipping: false
+        }
       };
 
       if (compareAtPrice) {
@@ -131,26 +143,26 @@ export const action = async ({ request }) => {
         };
       }
 
-      const variantIdNumeric = defaultVariantId.split("/").pop();
-      try {
-        const restResponse = await admin.rest.put({
-          path: `variants/${variantIdNumeric}.json`,
-          data: {
-            variant: {
-              id: parseInt(variantIdNumeric),
-              requires_shipping: false,
-            },
-          },
-        });
-        if (!restResponse.ok) {
-          const errorText = await restResponse.text();
-          console.error("Failed to update variant shipping via REST:", restResponse.status, errorText);
-        } else {
-          console.log("Successfully updated variant requires_shipping to false via REST");
-        }
-      } catch (err) {
-        console.error("Error during REST variant shipping update:", err);
-      }
+      // const variantIdNumeric = defaultVariantId.split("/").pop();
+      // try {
+      //   const restResponse = await admin.rest.put({
+      //     path: `variants/${variantIdNumeric}.json`,
+      //     data: {
+      //       variant: {
+      //         id: parseInt(variantIdNumeric),
+      //         requires_shipping: false,
+      //       },
+      //     },
+      //   });
+      //   if (!restResponse.ok) {
+      //     const errorText = await restResponse.text();
+      //     console.error("Failed to update variant shipping via REST:", restResponse.status, errorText);
+      //   } else {
+      //     console.log("Successfully updated variant requires_shipping to false via REST");
+      //   }
+      // } catch (err) {
+      //   console.error("Error during REST variant shipping update:", err);
+      // }
     }
 
     const validImageFiles = imageFiles.filter(
