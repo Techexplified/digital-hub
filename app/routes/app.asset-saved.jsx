@@ -96,7 +96,7 @@ export default function AssetSaved() {
 
             {/* Success message */}
             <h2 className={styles.successTitle}>
-              Asset Saved Successfully as Draft {groupId}
+              Asset Saved Successfully {/*as Draft {groupId}*/}
             </h2>
           </div>
 
