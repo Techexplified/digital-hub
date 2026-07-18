@@ -100,8 +100,16 @@ export const loader = async ({ request }) => {
   const ordersPrevious = new Set(tokensLastMonth.map((t) => t.orderId).filter(Boolean)).size;
 
   // TODO: wire actual sales total once stored on DownloadToken or a new Order model
-  const salesCurrent = 0;
-  const salesPrevious = 0;
+  //const salesCurrent = 0;
+  //const salesPrevious = 0;
+  //the above to do is done
+
+    const salesCurrent = tokensThisMonth.reduce(
+    (sum, t) => sum + (parseFloat(t.saleAmount) || 0), 0
+  );
+  const salesPrevious = tokensLastMonth.reduce(
+    (sum, t) => sum + (parseFloat(t.saleAmount) || 0), 0
+  );
 
   const liveProductsCurrent = shopifyProducts.filter((p) => p.status === "ACTIVE").length;
   // TODO: compute properly once enough historical data exists
